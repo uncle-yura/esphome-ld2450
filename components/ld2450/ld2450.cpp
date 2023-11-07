@@ -16,7 +16,7 @@ static const char *TAG = "ld2450";
 #define lowbyte(val) (uint8_t)((val) &0xff)
 
 void LD2450::setup() {
-    this->read_all_info();
+    this->set_timeout(1000, [this]() { this->read_all_info(); });
 }
 
 void LD2450::update() {

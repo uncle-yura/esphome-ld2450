@@ -24,7 +24,7 @@ void BaudRateSelect::setup() {
     if (!this->restore_value_) {
         value = this->initial_value_;
     } else {
-        this->pref_ = global_preferences->make_preference<uint8_t>(this->get_object_id_hash());
+        this->pref_ = global_preferences->make_preference<uint8_t>(this->get_object_id_hash(), true);
         uint8_t select_number;
         if (!this->pref_.load(&select_number)) {
           value = this->initial_value_;
