@@ -1,5 +1,7 @@
 #pragma once
 
+#include "typedefs.h"
+
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
 
@@ -34,52 +36,7 @@
 namespace esphome {
 namespace ld2450 {
 
-typedef struct{
-  uint16_t cx;
-  uint16_t cy;
-  uint16_t speed;
-  uint16_t resolution;
-}person_struct;
-
-typedef struct{
-  uint8_t data_header[4];
-  person_struct person[3];
-  uint8_t data_end[2];
-}data_packet_struct;
-
-typedef struct{
-  uint8_t frame_header[4];
-  uint8_t size_0;
-  uint8_t size_1;
-  uint8_t command;
-  uint8_t command_ack;
-  uint8_t reserved_0;
-  uint8_t reserved_1;
-} frame_start_struct;
-
-typedef struct {
-  int16_t X0;
-  int16_t Y0;
-  int16_t X1;
-  int16_t Y1;
-} region;
-
-typedef struct {
-  uint8_t type;
-  uint8_t reserved;
-  region coordinates[3];
-} regions;
-
-typedef struct{
-  uint8_t buffer[256];
-  uint8_t size;
-  uint8_t frame_start;
-}serial_buffer_struct;
-
-typedef struct {
-    double x;
-    double y;
-} coordinates;
+class EntryPoint;
 
 class LD2450 : public uart::UARTDevice, public PollingComponent {
 #ifdef USE_SENSOR
@@ -103,6 +60,7 @@ class LD2450 : public uart::UARTDevice, public PollingComponent {
 
 #ifdef USE_NUMBER
   SUB_NUMBER(rotate)
+  SUB_NUMBER(presense_timeout)
 #endif
 
 #ifdef USE_BINARY_SENSOR
@@ -136,7 +94,6 @@ class LD2450 : public uart::UARTDevice, public PollingComponent {
     void loop() override;
     void update() override;
     void dump_config() override;
-    void set_rotate_number();
     void read_all_info();
     void set_bluetooth(bool enable);
     void set_single_target(bool enable);
@@ -144,10 +101,13 @@ class LD2450 : public uart::UARTDevice, public PollingComponent {
     void restore_factory();
     void set_baud_rate(uint8_t state);
     void set_regions_type(uint8_t state);
+    void add_entry_point(EntryPoint *entry_point);
 
 #ifdef USE_NUMBER
     void set_region_number(int region, int coord, number::Number *n);
     void set_region(uint8_t region);
+    void set_rotate_number();
+    void set_presense_timeout_number();
 #endif
 
   private:
@@ -185,6 +145,11 @@ class LD2450 : public uart::UARTDevice, public PollingComponent {
     std::string version_;
     std::string mac_;
     float rotate_angle = 0.0;
+    coordinates person[3];
+    coordinates person_before[3];
+    float presense_timeout = 0.0;
+    int32_t presence_millis[3];
+    std::vector<EntryPoint *> entry_points;
 
 #ifdef USE_NUMBER
     std::vector<std::vector<number::Number*>> region_numbers_ = std::vector<std::vector<number::Number*>>(3, std::vector<number::Number*>(4));;

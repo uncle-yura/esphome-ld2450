@@ -1,5 +1,6 @@
 #include "esphome/core/log.h"
 #include "ld2450.h"
+#include "number/entry_point.h"
 
 namespace esphome {
 namespace ld2450 {
@@ -185,33 +186,31 @@ void LD2450::set_region(uint8_t region) {
 
 void LD2450::report_position(void) {
 #ifdef USE_SENSOR
-    coordinates coordinates_0 = rotate_coordinates(
-        transform(received_data.person[0].cx)/10,
-        transform(received_data.person[0].cy)/10,
-        rotate_angle
-    );
-    PERSON_PUBLISH(position_x, 0, coordinates_0.x);
-    PERSON_PUBLISH(position_y, 0, coordinates_0.y);
+    for(int i=0; i<3; i++) {
+        if(person[i].x != 0 && person[i].y != 0) {
+            person_before[i].x = person[i].x;
+            person_before[i].y = person[i].y;
+        }
+
+        person[i] = rotate_coordinates(
+            transform(received_data.person[i].cx)/10,
+            transform(received_data.person[i].cy)/10,
+            rotate_angle
+        );
+    }
+
+    PERSON_PUBLISH(position_x, 0, person[0].x);
+    PERSON_PUBLISH(position_y, 0, person[0].y);
     PERSON_PUBLISH(speed, 0, transform(received_data.person[0].speed));
     PERSON_PUBLISH(resolution, 0, transform(received_data.person[0].resolution));
 
-    coordinates coordinates_1 = rotate_coordinates(
-        transform(received_data.person[1].cx)/10,
-        transform(received_data.person[1].cy)/10,
-        rotate_angle
-    );
-    PERSON_PUBLISH(position_x, 1, coordinates_1.x);
-    PERSON_PUBLISH(position_y, 1, coordinates_1.y);
+    PERSON_PUBLISH(position_x, 1, person[1].x);
+    PERSON_PUBLISH(position_y, 1, person[1].y);
     PERSON_PUBLISH(speed, 1, transform(received_data.person[1].speed));
     PERSON_PUBLISH(resolution, 1, transform(received_data.person[1].resolution));
 
-    coordinates coordinates_2 = rotate_coordinates(
-        transform(received_data.person[2].cx)/10,
-        transform(received_data.person[2].cy)/10,
-        rotate_angle
-    );
-    PERSON_PUBLISH(position_x, 2, coordinates_2.x);
-    PERSON_PUBLISH(position_y, 2, coordinates_2.y);
+    PERSON_PUBLISH(position_x, 2, person[2].x);
+    PERSON_PUBLISH(position_y, 2, person[2].y);
     PERSON_PUBLISH(speed, 2, transform(received_data.person[2].speed));
     PERSON_PUBLISH(resolution, 2, transform(received_data.person[2].resolution));
     
@@ -227,19 +226,40 @@ void LD2450::report_position(void) {
 #endif
 
 #ifdef USE_BINARY_SENSOR
-    uint16_t moving_target = (
+    bool moving_target = (
         received_data.person[0].speed || 
         received_data.person[1].speed || 
         received_data.person[2].speed
     );
 
-    uint16_t still_target = (
+    bool still_target = (
         (received_data.person[0].resolution && !received_data.person[0].speed) ||
         (received_data.person[1].resolution && !received_data.person[1].speed) ||
         (received_data.person[2].resolution && !received_data.person[2].speed)
     );
 
-    uint16_t target = moving_target || still_target;
+    int32_t current_millis = millis();
+
+    for(int i=0; i<3; i++) {
+        bool exiting=false;
+        for (auto *entry_point : entry_points) {
+            if(entry_point->check_point(person_before[i])) {
+                exiting = true;
+                break;
+            }
+        }
+
+        if(received_data.person[i].resolution) {
+            if(exiting) presence_millis[i] = 0;
+            else presence_millis[i] = current_millis + presense_timeout*1000;
+        }
+    }
+
+    bool target = (
+        (received_data.person[0].resolution || presence_millis[0] > current_millis) ||
+        (received_data.person[1].resolution || presence_millis[1] > current_millis) ||
+        (received_data.person[2].resolution || presence_millis[2] > current_millis)
+    );
 
     if (this->target_binary_sensor_ != nullptr) {
         this->target_binary_sensor_->publish_state(target);
@@ -261,6 +281,16 @@ void LD2450::set_rotate_number() {
 #ifdef USE_NUMBER
     if (this->rotate_number_ != nullptr && this->rotate_number_->has_state()) {
         rotate_angle = this->rotate_number_->state;
+    }
+#endif
+}
+
+void LD2450::add_entry_point(EntryPoint *entry_point) { entry_points.emplace_back(entry_point); }
+
+void LD2450::set_presense_timeout_number() {
+#ifdef USE_NUMBER
+    if (this->presense_timeout_number_ != nullptr && this->presense_timeout_number_->has_state()) {
+        presense_timeout = this->presense_timeout_number_->state;
     }
 #endif
 }

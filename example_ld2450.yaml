@@ -87,6 +87,11 @@ number:
     restore_value: true
     initial_value: 0
     name: "Rotate angle"
+  presense_timeout:
+    name: "Presense timeout"
+  entry_points:
+    - x: 0
+      y: 0
   region_0:
     x0:
       name: R0X0
