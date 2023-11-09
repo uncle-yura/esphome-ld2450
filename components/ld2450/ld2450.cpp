@@ -195,7 +195,7 @@ void LD2450::report_position(void) {
 
         person[i] = rotate_coordinates(
             transform(received_data.person[i].cx)/10,
-            transform(received_data.person[i].cy)/10,
+            -transform(received_data.person[i].cy)/10,
             rotate_angle
         );
     }
