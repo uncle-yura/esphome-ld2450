@@ -7,7 +7,7 @@
 namespace esphome {
 namespace ld2450 {
 
-class PresenseTimeoutNumber : public number::Number, public Component, public Parented<LD2450>{
+class PresenceTimeoutNumber : public number::Number, public Component, public Parented<LD2450>{
     public:
         void setup() override;
         void set_initial_value(float initial_value) { this->initial_value_ = initial_value; }

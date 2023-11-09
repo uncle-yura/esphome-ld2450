@@ -1,9 +1,9 @@
-#include "presense_timeout_number.h"
+#include "presence_timeout_number.h"
 
 namespace esphome {
 namespace ld2450 {
 
-void PresenseTimeoutNumber::setup() {
+void PresenceTimeoutNumber::setup() {
     float value;
     if (!this->restore_value_) {
         value = this->initial_value_;
@@ -19,12 +19,12 @@ void PresenseTimeoutNumber::setup() {
     }
 
     this->publish_state(value);
-    this->parent_->set_presense_timeout_number();
+    this->parent_->set_presence_timeout_number();
 }
 
-void PresenseTimeoutNumber::control(float value) {
+void PresenceTimeoutNumber::control(float value) {
     this->publish_state(value);
-    this->parent_->set_presense_timeout_number();
+    this->parent_->set_presence_timeout_number();
     if (this->restore_value_) this->pref_.save(&value);
 }
 

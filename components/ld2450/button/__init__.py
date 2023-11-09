@@ -8,13 +8,11 @@ from esphome.const import (
     ICON_RESTART_ALERT,
     ICON_DATABASE,
 )
-from .. import CONF_LD2450_ID, LD2450, ld2450_ns
+from .. import LD2450, ld2450_ns
+from ..const import CONF_FACTORY_RESET, CONF_REBOOT, CONF_LD2450_ID
 
 ResetButton = ld2450_ns.class_("ResetButton", button.Button)
 RebootButton = ld2450_ns.class_("RebootButton", button.Button)
-
-CONF_FACTORY_RESET = "factory_reset"
-CONF_REBOOT = "reboot"
 
 CONFIG_SCHEMA = {
     cv.GenerateID(CONF_LD2450_ID): cv.use_id(LD2450),

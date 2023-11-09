@@ -1,6 +1,7 @@
 #include "esphome/core/log.h"
 #include "ld2450.h"
 #include "number/entry_point.h"
+#include "number/presence_region.h"
 
 namespace esphome {
 namespace ld2450 {
@@ -240,6 +241,10 @@ void LD2450::report_position(void) {
 
     int32_t current_millis = millis();
 
+    for (auto *presence_region : presence_regions) {
+        presence_region->check_target(person);
+    }
+
     for(int i=0; i<3; i++) {
         bool exiting=false;
         for (auto *entry_point : entry_points) {
@@ -251,7 +256,7 @@ void LD2450::report_position(void) {
 
         if(received_data.person[i].resolution) {
             if(exiting) presence_millis[i] = 0;
-            else presence_millis[i] = current_millis + presense_timeout*1000;
+            else presence_millis[i] = current_millis + presence_timeout*1000;
         }
     }
 
@@ -287,10 +292,12 @@ void LD2450::set_rotate_number() {
 
 void LD2450::add_entry_point(EntryPoint *entry_point) { entry_points.emplace_back(entry_point); }
 
-void LD2450::set_presense_timeout_number() {
+void LD2450::add_presence_region(PresenceRegion *presence_region) { presence_regions.emplace_back(presence_region); }
+
+void LD2450::set_presence_timeout_number() {
 #ifdef USE_NUMBER
-    if (this->presense_timeout_number_ != nullptr && this->presense_timeout_number_->has_state()) {
-        presense_timeout = this->presense_timeout_number_->state;
+    if (this->presence_timeout_number_ != nullptr && this->presence_timeout_number_->has_state()) {
+        presence_timeout = this->presence_timeout_number_->state;
     }
 #endif
 }

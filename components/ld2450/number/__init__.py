@@ -20,17 +20,11 @@ from esphome.const import (
     UNIT_SECOND,
     CONF_UNIT_OF_MEASUREMENT
 )
-from .. import LD2450, CONF_LD2450_ID, ld2450_ns
+from .. import LD2450, ld2450_ns, PresenceRegion
 
-CONF_ROTATE = "rotate"
-CONF_PRESENSE_TIMEOUT = "presense_timeout"
-CONF_ENTRY_POINTS = "entry_points"
-CONF_X0 = "x0"
-CONF_Y0 = "y0"
-CONF_X1 = "x1"
-CONF_Y1 = "y1"
-CONF_X = "x"
-CONF_Y = "y"
+from ..const import (CONF_ROTATE, CONF_PRESENCE_TIMEOUT, CONF_PRESENCE_REGIONS,
+    CONF_ENTRY_POINTS, CONF_X0, CONF_Y0, CONF_X1, CONF_Y1, CONF_X, CONF_Y,
+    CONF_LD2450_ID)
 
 NUMBERS = [CONF_X0, CONF_Y0, CONF_X1, CONF_Y1]
 
@@ -42,8 +36,8 @@ RotateNumber = ld2450_ns.class_(
     cg.Component,
     cg.Parented.template(LD2450)
 )
-PresenseTimeoutNumber = ld2450_ns.class_(
-    "PresenseTimeoutNumber",
+PresenceTimeoutNumber = ld2450_ns.class_(
+    "PresenceTimeoutNumber",
     number.Number,
     cg.Component,
     cg.Parented.template(LD2450)
@@ -71,9 +65,9 @@ CONFIG_SCHEMA = cv.Schema({
             cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_DEGREES): cv.string_strict
         }
     ).extend(cv.COMPONENT_SCHEMA),
-    cv.Optional(CONF_PRESENSE_TIMEOUT): number.NUMBER_SCHEMA.extend(
+    cv.Optional(CONF_PRESENCE_TIMEOUT): number.NUMBER_SCHEMA.extend(
         {
-            cv.GenerateID(): cv.declare_id(PresenseTimeoutNumber),
+            cv.GenerateID(): cv.declare_id(PresenceTimeoutNumber),
             cv.Optional(
                 CONF_ENTITY_CATEGORY, default=ENTITY_CATEGORY_CONFIG
             ): cv.entity_category,
@@ -92,6 +86,19 @@ CONFIG_SCHEMA = cv.Schema({
                     cv.GenerateID(): cv.declare_id(EntryPoint),
                     cv.Required(CONF_X): cv.float_,
                     cv.Required(CONF_Y): cv.float_
+                }
+            )
+        )
+    ),
+    cv.Optional(CONF_PRESENCE_REGIONS): cv.ensure_list(
+        cv.All(
+            cv.Schema(
+                {
+                    cv.GenerateID(): cv.declare_id(PresenceRegion),
+                    cv.Required(CONF_X0): cv.float_,
+                    cv.Required(CONF_Y0): cv.float_,
+                    cv.Required(CONF_X1): cv.float_,
+                    cv.Required(CONF_Y1): cv.float_
                 }
             )
         )
@@ -155,19 +162,19 @@ async def to_code(config):
         cg.add(func(var))
         cg.add(var.set_parent(hub))
     
-    if presense_timeout_config := config.get(CONF_PRESENSE_TIMEOUT):
+    if presence_timeout_config := config.get(CONF_PRESENCE_TIMEOUT):
         var = await number.new_number(
-            presense_timeout_config,
-            min_value=presense_timeout_config[CONF_MIN_VALUE],
-            max_value=presense_timeout_config[CONF_MAX_VALUE],
-            step=presense_timeout_config[CONF_STEP],
+            presence_timeout_config,
+            min_value=presence_timeout_config[CONF_MIN_VALUE],
+            max_value=presence_timeout_config[CONF_MAX_VALUE],
+            step=presence_timeout_config[CONF_STEP],
         )
-        await cg.register_component(var, presense_timeout_config)
-        cg.add(var.set_initial_value(presense_timeout_config[CONF_INITIAL_VALUE]))
-        cg.add(var.set_restore_value(presense_timeout_config[CONF_RESTORE_VALUE]))
+        await cg.register_component(var, presence_timeout_config)
+        cg.add(var.set_initial_value(presence_timeout_config[CONF_INITIAL_VALUE]))
+        cg.add(var.set_restore_value(presence_timeout_config[CONF_RESTORE_VALUE]))
 
         hub = await cg.get_variable(config[CONF_LD2450_ID])
-        func = getattr(hub, f"set_presense_timeout_number")
+        func = getattr(hub, f"set_presence_timeout_number")
         cg.add(func(var))
         cg.add(var.set_parent(hub))
 
@@ -179,6 +186,17 @@ async def to_code(config):
                 entry_point[CONF_Y]
             )
             cg.add(ld2450.add_entry_point(n))
+
+    if presence_regions := config.get(CONF_PRESENCE_REGIONS):
+        for presence_region in presence_regions:
+            n = cg.new_Pvariable(
+                presence_region[CONF_ID],
+                presence_region[CONF_X0],
+                presence_region[CONF_Y0],
+                presence_region[CONF_X1],
+                presence_region[CONF_Y1]
+            )
+            cg.add(ld2450.add_presence_region(n))
 
     for x in range(3):
         if region_config := config.get(f"region_{x}"):

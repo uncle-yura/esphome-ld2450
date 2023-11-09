@@ -8,7 +8,8 @@ from esphome.const import (
     ICON_BLUETOOTH,
     ICON_CHIP,
 )
-from . import CONF_LD2450_ID, LD2450
+from . import LD2450
+from .const import CONF_LD2450_ID
 
 DEPENDENCIES = ["ld2450"]
 

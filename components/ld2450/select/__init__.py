@@ -9,9 +9,8 @@ from esphome.const import (
     CONF_INITIAL_VALUE,
     CONF_RESTORE_VALUE
 )
-from .. import CONF_LD2450_ID, LD2450, ld2450_ns
-
-CONF_REGIONS_TYPE = "regions_type"
+from .. import LD2450, ld2450_ns
+from ..const import CONF_REGIONS_TYPE, CONF_LD2450_ID
 
 BaudRateSelect = ld2450_ns.class_("BaudRateSelect",
     select.Select,

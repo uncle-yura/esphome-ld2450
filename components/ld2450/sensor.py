@@ -15,15 +15,12 @@ from esphome.const import (
     UNIT_SECOND,
     ICON_ACCOUNT
 )
-from . import LD2450, CONF_LD2450_ID
+from . import LD2450
+from .const import CONF_LD2450_ID
 
 DEPENDENCIES = ["ld2450"]
 
-CONF_TARGET_COUNT = "target_count"
-CONF_POSITION_X = "position_x"
-CONF_POSITION_Y = "position_y"
-CONF_SPEED = "speed"
-CONF_RESOLUTION ="resolution"
+from .const import CONF_TARGET_COUNT, CONF_POSITION_X, CONF_POSITION_Y, CONF_SPEED, CONF_RESOLUTION
 
 SENSORS = [CONF_POSITION_X, CONF_POSITION_Y, CONF_SPEED, CONF_RESOLUTION]
 

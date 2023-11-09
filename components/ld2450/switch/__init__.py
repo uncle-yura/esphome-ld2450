@@ -9,7 +9,8 @@ from esphome.const import (
     CONF_INITIAL_VALUE,
     CONF_RESTORE_VALUE
 )
-from .. import CONF_LD2450_ID, LD2450, ld2450_ns
+from .. import LD2450, ld2450_ns
+from ..const import CONF_SINGLE_TARGET, CONF_BLUETOOTH, CONF_LD2450_ID
 
 BluetoothSwitch = ld2450_ns.class_("BluetoothSwitch",
     switch.Switch,
@@ -20,9 +21,6 @@ SingleTargetSwitch = ld2450_ns.class_("SingleTargetSwitch",
     switch.Switch,
     cg.Parented.template(LD2450)
 )
-
-CONF_SINGLE_TARGET = "single_target"
-CONF_BLUETOOTH = "bluetooth"
 
 CONFIG_SCHEMA = {
     cv.GenerateID(CONF_LD2450_ID): cv.use_id(LD2450),

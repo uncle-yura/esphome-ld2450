@@ -3,14 +3,14 @@ import esphome.config_validation as cv
 from esphome.components import uart
 from esphome.const import CONF_ID
 
-DEPENDENCIES = ["uart"]
+from .const import CONF_LD2450_ID, CONF_INVERT_X, CONF_INVERT_Y
 
-CONF_LD2450_ID = "ld2450_id"
-CONF_INVERT_X = "invert_x"
-CONF_INVERT_Y = "invert_y"
+DEPENDENCIES = ["uart"]
 
 ld2450_ns = cg.esphome_ns.namespace("ld2450")
 LD2450 = ld2450_ns.class_("LD2450", cg.PollingComponent, uart.UARTDevice)
+
+PresenceRegion = ld2450_ns.class_("PresenceRegion")
 
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(LD2450),

@@ -37,6 +37,7 @@ namespace esphome {
 namespace ld2450 {
 
 class EntryPoint;
+class PresenceRegion;
 
 class LD2450 : public uart::UARTDevice, public PollingComponent {
 #ifdef USE_SENSOR
@@ -60,7 +61,7 @@ class LD2450 : public uart::UARTDevice, public PollingComponent {
 
 #ifdef USE_NUMBER
   SUB_NUMBER(rotate)
-  SUB_NUMBER(presense_timeout)
+  SUB_NUMBER(presence_timeout)
 #endif
 
 #ifdef USE_BINARY_SENSOR
@@ -102,12 +103,13 @@ class LD2450 : public uart::UARTDevice, public PollingComponent {
     void set_baud_rate(uint8_t state);
     void set_regions_type(uint8_t state);
     void add_entry_point(EntryPoint *entry_point);
+    void add_presence_region(PresenceRegion *presence_region);
 
 #ifdef USE_NUMBER
     void set_region_number(int region, int coord, number::Number *n);
     void set_region(uint8_t region);
     void set_rotate_number();
-    void set_presense_timeout_number();
+    void set_presence_timeout_number();
 #endif
 
   private:
@@ -147,9 +149,10 @@ class LD2450 : public uart::UARTDevice, public PollingComponent {
     float rotate_angle = 0.0;
     coordinates person[3];
     coordinates person_before[3];
-    float presense_timeout = 0.0;
+    float presence_timeout = 0.0;
     int32_t presence_millis[3];
     std::vector<EntryPoint *> entry_points;
+    std::vector<PresenceRegion *> presence_regions;
 
 #ifdef USE_NUMBER
     std::vector<std::vector<number::Number*>> region_numbers_ = std::vector<std::vector<number::Number*>>(3, std::vector<number::Number*>(4));;
