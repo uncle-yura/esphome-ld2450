@@ -48,6 +48,8 @@ uart:
 ld2450:
   uart_id: uart_bus
   update_interval: 1s
+  invert_y: true
+  invert_x: false
 
 binary_sensor:
 - platform: ld2450

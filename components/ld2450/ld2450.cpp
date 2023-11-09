@@ -300,7 +300,13 @@ coordinates LD2450::rotate_coordinates(double x, double y, double angle) {
     
     double new_x = x * cos(angle_rad) - y * sin(angle_rad);
     double new_y = x * sin(angle_rad) + y * cos(angle_rad);
-    
+#ifdef INVERT_X
+    new_x = -new_x;
+#endif
+
+#ifdef INVERT_Y
+    new_y = -new_y;
+#endif
     coordinates result = {new_x, new_y};
     return result;
 }
