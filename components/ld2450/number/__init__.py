@@ -204,7 +204,7 @@ async def to_code(config):
                 coord_config = region_config[coordinate]
                 n = cg.new_Pvariable(coord_config[CONF_ID], x)
                 await number.register_number(
-                    n, coord_config, min_value=-700, max_value=700, step=1
+                    n, coord_config, min_value=-1000, max_value=1000, step=1
                 )
                 await cg.register_parented(n, config[CONF_LD2450_ID])
                 cg.add(ld2450.set_region_number(x, i, n))
