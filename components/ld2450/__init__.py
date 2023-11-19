@@ -6,6 +6,7 @@ from esphome.const import CONF_ID
 from .const import CONF_LD2450_ID, CONF_INVERT_X, CONF_INVERT_Y
 
 DEPENDENCIES = ["uart"]
+MULTI_CONF = True
 
 ld2450_ns = cg.esphome_ns.namespace("ld2450")
 LD2450 = ld2450_ns.class_("LD2450", cg.PollingComponent, uart.UARTDevice)
