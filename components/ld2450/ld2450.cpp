@@ -140,7 +140,7 @@ void LD2450::restore_factory() {
 
 void LD2450::set_bluetooth(bool enable) {
     this->set_config_mode_(true);
-    uint8_t cmd_value[2] = { enable ? 0x01 : 0x00, 0x00};
+    uint8_t cmd_value[2] = { static_cast<uint8_t>(enable ? 0x01 : 0x00), 0x00};
     this->send_command_(SET_BLUETOOTH, cmd_value, 2);
     this->reboot_();
     this->set_timeout(1000, [this]() { this->read_all_info(); });
