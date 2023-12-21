@@ -1,9 +1,10 @@
 #pragma once
-
-#include "typedefs.h"
-
+#include "esphome/core/helpers.h"
+#include "esphome/core/log.h"
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
+
+#include "typedefs.h"
 
 #ifdef USE_SENSOR
 #include "esphome/components/sensor/sensor.h"
@@ -15,6 +16,8 @@
 
 #ifdef USE_NUMBER
 #include "esphome/components/number/number.h"
+#include "number/entry_point.h"
+#include "number/presence_region.h"
 #endif
 
 #ifdef USE_TEXT_SENSOR

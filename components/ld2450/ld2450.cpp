@@ -1,7 +1,4 @@
-#include "esphome/core/log.h"
 #include "ld2450.h"
-#include "number/entry_point.h"
-#include "number/presence_region.h"
 
 namespace esphome {
 namespace ld2450 {
@@ -88,6 +85,7 @@ void LD2450::loop() {
                                     response_buffer[4]).c_str();
                                 break;
 
+#ifdef USE_NUMBER
                             case GET_REGIONS:
                                 std::string value = this->regions_type_select_->at(sensor_regions.type).value();
                                 ESP_LOGD(TAG, "ACK ,  %d", sensor_regions.type);
@@ -105,6 +103,7 @@ void LD2450::loop() {
                                     if(y1 != nullptr) y1->publish_state(sensor_regions.coordinates[i].Y1/10);
                                 }
                                 break;
+#endif
                         }
                         serial_data.size = 0;
                         serial_data.frame_start = 0;
@@ -167,10 +166,13 @@ void LD2450::set_regions_type(uint8_t state) {
     this->set_config_mode_(false);
 }
 
+#ifdef USE_NUMBER
 void LD2450::set_region_number(int region, int coord, number::Number *n) {
     this->region_numbers_[region][coord] = n;
 }
+#endif
 
+#ifdef USE_NUMBER
 void LD2450::set_region(uint8_t region) {
     number::Number *x0 = this->region_numbers_[region][0];
     number::Number *y0 = this->region_numbers_[region][1];
@@ -182,6 +184,7 @@ void LD2450::set_region(uint8_t region) {
     if (x1->has_state()) sensor_regions.coordinates[region].X1 = x1->state*10;
     if (y1->has_state()) sensor_regions.coordinates[region].Y1 = y1->state*10;
 }
+#endif
 
 // Private Methods //////////////////////////////////////////////////////////////
 
@@ -282,25 +285,25 @@ int16_t LD2450::transform(uint16_t data) {
     return (data>>15) == 1 ? -1 * (data&0x7FFF) : data&0x7FFF;
 }
 
-void LD2450::set_rotate_number() {
 #ifdef USE_NUMBER
+void LD2450::set_rotate_number() {
     if (this->rotate_number_ != nullptr && this->rotate_number_->has_state()) {
         rotate_angle = this->rotate_number_->state;
     }
-#endif
 }
+#endif
 
 void LD2450::add_entry_point(EntryPoint *entry_point) { entry_points.emplace_back(entry_point); }
 
 void LD2450::add_presence_region(PresenceRegion *presence_region) { presence_regions.emplace_back(presence_region); }
 
-void LD2450::set_presence_timeout_number() {
 #ifdef USE_NUMBER
+void LD2450::set_presence_timeout_number() {
     if (this->presence_timeout_number_ != nullptr && this->presence_timeout_number_->has_state()) {
         presence_timeout = this->presence_timeout_number_->state;
     }
-#endif
 }
+#endif
 
 coordinates LD2450::rotate_coordinates(double x, double y, double angle) {
     double angle_rad = angle * (M_PI / 180.0);
