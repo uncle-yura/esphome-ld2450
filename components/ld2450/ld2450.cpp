@@ -87,10 +87,11 @@ void LD2450::loop() {
 
 #ifdef USE_NUMBER
                             case GET_REGIONS:
+#ifdef USE_SELECT
                                 std::string value = this->regions_type_select_->at(sensor_regions.type).value();
                                 ESP_LOGD(TAG, "ACK ,  %d", sensor_regions.type);
                                 this->regions_type_select_->publish_state(value);
-
+#endif
                                 for(int i=0; i<3; i++) {
                                     number::Number *x0 = this->region_numbers_[i][0];
                                     number::Number *y0 = this->region_numbers_[i][1];
@@ -244,18 +245,23 @@ void LD2450::report_position(void) {
 
     int32_t current_millis = millis();
 
+#ifdef USE_NUMBER
     for (auto *presence_region : presence_regions) {
         presence_region->check_target(person);
     }
+#endif
 
     for(int i=0; i<3; i++) {
         bool exiting=false;
+
+#ifdef USE_NUMBER
         for (auto *entry_point : entry_points) {
             if(entry_point->check_point(person_before[i])) {
                 exiting = true;
                 break;
             }
         }
+#endif
 
         if(received_data.person[i].resolution) {
             if(exiting) presence_millis[i] = 0;
