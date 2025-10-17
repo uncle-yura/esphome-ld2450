@@ -51,7 +51,7 @@ EntryPoint = ld2450_ns.class_("EntryPoint")
 
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(CONF_LD2450_ID): cv.use_id(LD2450),
-    cv.Optional(CONF_ROTATE): number.NUMBER_SCHEMA.extend(
+    cv.Optional(CONF_ROTATE): number.number_schema(RotateNumber).extend(
         {
             cv.GenerateID(): cv.declare_id(RotateNumber),
             cv.Optional(
@@ -65,7 +65,7 @@ CONFIG_SCHEMA = cv.Schema({
             cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_DEGREES): cv.string_strict
         }
     ).extend(cv.COMPONENT_SCHEMA),
-    cv.Optional(CONF_PRESENCE_TIMEOUT): number.NUMBER_SCHEMA.extend(
+    cv.Optional(CONF_PRESENCE_TIMEOUT): number.number_schema(PresenceTimeoutNumber).extend(
         {
             cv.GenerateID(): cv.declare_id(PresenceTimeoutNumber),
             cv.Optional(
